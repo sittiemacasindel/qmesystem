@@ -4,7 +4,9 @@
  * Base URL: http://localhost:8080
  */
 
-const BASE_URL = 'http://localhost:8080';
+// If Vercel has REACT_APP_API_URL set, use it. Otherwise, use localhost.
+// Make sure you add REACT_APP_API_URL to your Vercel Environment Variables!
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 /** Generic fetch wrapper that handles auth header and JSON parsing. */
 async function request<T>(
