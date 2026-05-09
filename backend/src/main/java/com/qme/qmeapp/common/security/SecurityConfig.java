@@ -44,8 +44,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
@@ -63,11 +62,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/queues/entries/**").hasRole("ADMIN")
                         // Profile
                         .requestMatchers("/api/users/me").authenticated()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(this::handleAuthenticationException)
-                )
+                        .authenticationEntryPoint(this::handleAuthenticationException))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -75,8 +72,8 @@ public class SecurityConfig {
     }
 
     private void handleAuthenticationException(HttpServletRequest request,
-                                               HttpServletResponse response,
-                                               AuthenticationException authException) throws java.io.IOException {
+            HttpServletResponse response,
+            AuthenticationException authException) throws java.io.IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         ApiResponse<Void> apiResponse = ApiResponse.error("Authentication required. Please provide a valid token.");
@@ -89,10 +86,9 @@ public class SecurityConfig {
         // Replace the placeholder URL below with your actual Vercel URL!
         // You can keep localhost in there for your local testing.
         configuration.setAllowedOrigins(List.of(
-                "https://your-vercel-app.vercel.app", 
-                "http://localhost:3000", 
-                "http://localhost:5173"
-        ));
+                "https://qme-frontend-git-main-siitie-s-projects.vercel.app",
+                "http://localhost:3000",
+                "http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
