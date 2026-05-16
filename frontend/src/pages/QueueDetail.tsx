@@ -218,7 +218,7 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
                     <img src={orgPhoto} alt={org.name} className="qd-org-photo" />
                   ) : (
                     <div className="qd-org-photo-placeholder">
-                      <QueueLargeIcon />
+                      <PeopleIcon />
                     </div>
                   )}
 

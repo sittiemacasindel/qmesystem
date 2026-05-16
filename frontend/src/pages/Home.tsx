@@ -417,7 +417,11 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
                                 disabled={deletingId === org.id}
                                 title="Delete"
                               >
-                                {deletingId === org.id ? <span className="spinner-xs" /> : <XIcon />}
+                                {deletingId === org.id ? (
+                                  <span className="spinner-xs" />
+                                ) : (
+                                  "Close"
+                                )}
                               </button>
                             </div>
                           </div>
@@ -596,7 +600,7 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
                 <XIcon />
               </div>
               <div>
-                <h2 className="modal-title">Delete Queue</h2>
+                <h2 className="modal-title">Close Queue</h2>
                 <p className="modal-subtitle">
                   This action cannot be undone.
                 </p>
@@ -611,7 +615,7 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
 
             <div className="modal-body">
               <p style={{ fontSize: "0.9rem", color: "#475569" }}>
-                Are you sure you want to delete this queue?
+                Are you sure you want to close this queue?
               </p>
             </div>
 
@@ -637,7 +641,7 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
                     <span className="spinner-xs" /> Deleting…
                   </>
                 ) : (
-                  <>Delete</>
+                  <>Close</>
                 )}
               </button>
             </div>
