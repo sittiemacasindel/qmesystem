@@ -23,10 +23,10 @@ interface ApiService {
 
     // ── Auth ────────────────────────────────────────────
     @POST("api/auth/register")
-    fun register(@Body request: RegisterRequest): Call<AuthResponse>
+    fun register(@Body request: RegisterRequest): Call<ApiResponse<AuthResponse>>
 
     @POST("api/auth/login")
-    fun login(@Body request: LoginRequest): Call<AuthResponse>
+    fun login(@Body request: LoginRequest): Call<ApiResponse<AuthResponse>>
 
     // ── Organizations ────────────────────────────────────
     @GET("api/organizations/code/{code}")

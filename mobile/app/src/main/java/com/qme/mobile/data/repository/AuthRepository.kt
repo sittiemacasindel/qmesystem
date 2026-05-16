@@ -3,6 +3,7 @@ package com.qme.mobile.data.repository
 import com.qme.mobile.data.api.ApiService
 import com.qme.mobile.data.model.request.LoginRequest
 import com.qme.mobile.data.model.request.RegisterRequest
+import com.qme.mobile.data.model.response.ApiResponse
 import com.qme.mobile.data.model.response.AuthResponse
 import com.qme.mobile.util.SessionManager
 import retrofit2.Call
@@ -19,10 +20,10 @@ class AuthRepository(
 ) {
 
     fun login(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
-        api.login(LoginRequest(email, password)).enqueue(object : Callback<AuthResponse> {
-            override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+        api.login(LoginRequest(email, password)).enqueue(object : Callback<ApiResponse<AuthResponse>> {
+            override fun onResponse(call: Call<ApiResponse<AuthResponse>>, response: Response<ApiResponse<AuthResponse>>) {
                 if (response.isSuccessful) {
-                    val body = response.body()
+                    val body = response.body()?.data
                     if (body != null) {
                         session.saveSession(
                             token        = body.token,
@@ -47,7 +48,7 @@ class AuthRepository(
                 }
             }
 
-            override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+            override fun onFailure(call: Call<ApiResponse<AuthResponse>>, t: Throwable) {
                 onResult(false, "Network error. Please check your connection.")
             }
         })
@@ -55,10 +56,10 @@ class AuthRepository(
 
     fun register(name: String, email: String, password: String, onResult: (Boolean, String?) -> Unit) {
         api.register(RegisterRequest(name = name, email = email, password = password))
-            .enqueue(object : Callback<AuthResponse> {
-                override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+            .enqueue(object : Callback<ApiResponse<AuthResponse>> {
+                override fun onResponse(call: Call<ApiResponse<AuthResponse>>, response: Response<ApiResponse<AuthResponse>>) {
                     if (response.isSuccessful) {
-                        val body = response.body()
+                        val body = response.body()?.data
                         if (body != null) {
                             session.saveSession(
                                 token        = body.token,
@@ -83,7 +84,7 @@ class AuthRepository(
                     }
                 }
 
-                override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+                override fun onFailure(call: Call<ApiResponse<AuthResponse>>, t: Throwable) {
                     onResult(false, "Network error. Please check your connection.")
                 }
             })

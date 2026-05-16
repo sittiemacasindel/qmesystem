@@ -1,0 +1,26 @@
+# Android Studio / IntelliJ
+.idea/
+*.iml
+.vscode/
+
+# Local machine config
+local.properties
+
+# Build folders
+/build/
+/app/build/
+
+# Gradle cache
+.gradle/
+
+# Crash dump files
+*.hprof
+
+# Generated files
+captures/
+.externalNativeBuild/
+.cxx/
+
+# OS files
+.DS_Store
+Thumbs.db
