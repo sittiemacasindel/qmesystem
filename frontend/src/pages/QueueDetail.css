@@ -434,6 +434,32 @@
   background: #bbf7d0;
 }
 
+.qd-action-btn--danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1.5px solid #fca5a5;
+}
+
+.qd-action-btn--danger:hover:not(:disabled) {
+  background: #fca5a5;
+}
+
+/* Control buttons inline with the name row (smaller, auto width) */
+.qd-ctrl-btn {
+  width: auto !important;
+  padding: 6px 12px !important;
+  font-size: 0.78rem !important;
+  border-radius: 8px !important;
+}
+
+/* INACTIVE status badge */
+.qd-status-badge--inactive {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1.5px solid #cbd5e1;
+}
+
+
 /* ── Empty Serving State ── */
 .qd-serving-empty {
   display: flex;

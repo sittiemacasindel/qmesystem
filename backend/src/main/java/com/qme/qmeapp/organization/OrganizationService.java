@@ -55,31 +55,44 @@ public class OrganizationService {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin user not found."));
 
+        OffsetDateTime startOfDay = OffsetDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+
         return organizationRepository.findByAdminId(admin.getId()).stream()
-                .map(this::mapToResponse)
+                .map(org -> {
+                    OrganizationResponse response = mapToResponse(org);
+                    long waitingCount = queueEntryRepository.countByOrganizationIdAndStatus(org.getId(), "WAITING");
+                    long servingCount = queueEntryRepository.countByOrganizationIdAndStatus(org.getId(), "SERVING");
+                    response.setTotalWaitingCustomers(waitingCount + servingCount);
+                    long servedTodayCount = queueEntryRepository.countByOrganizationIdAndStatusAndServedAtAfter(
+                            org.getId(), "SERVED", startOfDay);
+                    response.setTotalServedToday(servedTodayCount);
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
     public OrganizationResponse getOrganizationDetails(UUID id, String adminEmail) {
         Organization org = getOrganizationIfOwnedByAdmin(id, adminEmail);
-        
+
         OrganizationResponse response = mapToResponse(org);
-        
+
         // Populate stats
         long waitingCount = queueEntryRepository.countByOrganizationIdAndStatus(id, "WAITING");
         long servingCount = queueEntryRepository.countByOrganizationIdAndStatus(id, "SERVING");
-        response.setTotalWaitingCustomers(waitingCount + servingCount); 
-        
+        response.setTotalWaitingCustomers(waitingCount + servingCount);
+
         OffsetDateTime startOfDay = OffsetDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
-        long servedTodayCount = queueEntryRepository.countByOrganizationIdAndStatusAndServedAtAfter(id, "SERVED", startOfDay);
+        long servedTodayCount = queueEntryRepository.countByOrganizationIdAndStatusAndServedAtAfter(id, "SERVED",
+                startOfDay);
         response.setTotalServedToday(servedTodayCount);
-        
+
         return response;
     }
 
     public OrganizationResponse getOrganizationByQueueCode(String queueCode) {
         Organization org = organizationRepository.findByQueueCode(queueCode.toUpperCase())
-                .orElseThrow(() -> new ResourceNotFoundException("Organization not found with queue code: " + queueCode));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Organization not found with queue code: " + queueCode));
         return mapToResponse(org);
     }
 
@@ -87,13 +100,22 @@ public class OrganizationService {
     public OrganizationResponse updateOrganization(UUID id, String adminEmail, UpdateOrgRequest request) {
         Organization org = getOrganizationIfOwnedByAdmin(id, adminEmail);
 
-        if (request.getName() != null) org.setName(request.getName());
-        if (request.getOpeningHours() != null) org.setOpeningHours(request.getOpeningHours());
-        if (request.getClosingHours() != null) org.setClosingHours(request.getClosingHours());
-        if (request.getWaitTimeMin() != null) org.setWaitTimeMin(request.getWaitTimeMin());
-        if (request.getWaitTimeMax() != null) org.setWaitTimeMax(request.getWaitTimeMax());
-        if (request.getLocation() != null) org.setLocation(request.getLocation());
-        if (request.getContactNumber() != null) org.setContactNumber(request.getContactNumber());
+        if (request.getName() != null)
+            org.setName(request.getName());
+        if (request.getOpeningHours() != null)
+            org.setOpeningHours(request.getOpeningHours());
+        if (request.getClosingHours() != null)
+            org.setClosingHours(request.getClosingHours());
+        if (request.getWaitTimeMin() != null)
+            org.setWaitTimeMin(request.getWaitTimeMin());
+        if (request.getWaitTimeMax() != null)
+            org.setWaitTimeMax(request.getWaitTimeMax());
+        if (request.getLocation() != null)
+            org.setLocation(request.getLocation());
+        if (request.getContactNumber() != null)
+            org.setContactNumber(request.getContactNumber());
+        if (request.getPhoto() != null)
+            org.setPhoto(request.getPhoto());
 
         Organization updatedOrg = organizationRepository.save(org);
         return mapToResponse(updatedOrg);
@@ -150,6 +172,7 @@ public class OrganizationService {
                 .contactNumber(org.getContactNumber())
                 .status(org.getStatus())
                 .createdAt(org.getCreatedAt())
+                .photo(org.getPhoto())
                 .build();
     }
 }

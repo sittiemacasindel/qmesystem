@@ -20,8 +20,9 @@ public class OrganizationResponse {
     private String contactNumber;
     private String status;
     private OffsetDateTime createdAt;
-    
+
     // Additional fields populated when fetching details
     private Long totalWaitingCustomers;
     private Long totalServedToday;
+    private String photo;
 }

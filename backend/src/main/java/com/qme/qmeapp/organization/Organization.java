@@ -49,7 +49,10 @@ public class Organization {
     private String contactNumber;
 
     @Column(nullable = false)
-    private String status; // ACTIVE or PAUSED
+    private String status; // ACTIVE, PAUSED, INACTIVE
+
+    @Column(columnDefinition = "TEXT")
+    private String photo; // base64-encoded image (data URI)
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

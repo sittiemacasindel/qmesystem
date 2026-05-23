@@ -74,13 +74,18 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
 
     // Org details
     organizationApi.get(orgId).then((res) => {
-      if (res.data) setOrg(res.data);
+      if (res.data) {
+        setOrg(res.data);
+        // Use backend photo if localStorage doesn't have one
+        const stored = localStorage.getItem(ORG_PHOTO_KEY_PREFIX + orgId);
+        if (stored) {
+          setOrgPhoto(stored);
+        } else if (res.data.photo) {
+          setOrgPhoto(res.data.photo);
+        }
+      }
       setLoadingOrg(false);
     });
-
-    // Org photo from localStorage
-    const photo = localStorage.getItem(ORG_PHOTO_KEY_PREFIX + orgId);
-    if (photo) setOrgPhoto(photo);
 
     // Queue entries
     fetchEntries();
@@ -136,6 +141,43 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
       await fetchOrg();
     }
     setServingId(null);
+  };
+
+  const handlePauseToggle = async () => {
+    if (!org) return;
+    const newStatus = org.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+    const res = await organizationApi.updateStatus(orgId, newStatus as 'ACTIVE' | 'PAUSED');
+    if (res.error) {
+      showToast('error', res.error);
+    } else {
+      showToast('success', newStatus === 'PAUSED' ? 'Queue paused.' : 'Queue resumed.');
+      await fetchOrg();
+    }
+  };
+
+  const handleCloseQueue = async () => {
+    if (!window.confirm('Close this queue? Customers will no longer be able to join.')) return;
+    const res = await organizationApi.updateStatus(orgId, 'INACTIVE' as any);
+    if (res.error) {
+      showToast('error', res.error);
+    } else {
+      showToast('success', 'Queue closed.');
+      await fetchOrg();
+    }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result as string;
+      setOrgPhoto(base64);
+      localStorage.setItem(ORG_PHOTO_KEY_PREFIX + orgId, base64);
+      // Sync to backend so mobile can see it
+      await organizationApi.update(orgId, { photo: base64 } as any);
+    };
+    reader.readAsDataURL(file);
   };
 
   // ── Derived data ──
@@ -213,17 +255,20 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
             {org && (
               <div className="qd-header-card">
                 <div className="qd-header-top">
-                  {/* Photo or placeholder */}
-                  {orgPhoto ? (
-                    <img src={orgPhoto} alt={org.name} className="qd-org-photo" />
-                  ) : (
-                    <div className="qd-org-photo-placeholder">
-                      <PeopleIcon />
-                    </div>
-                  )}
+                  {/* Photo (clickable to upload) */}
+                  <label htmlFor="org-photo-upload" style={{ cursor: 'pointer', display: 'block' }} title="Click to change photo">
+                    {orgPhoto ? (
+                      <img src={orgPhoto} alt={org.name} className="qd-org-photo" />
+                    ) : (
+                      <div className="qd-org-photo-placeholder">
+                        <PeopleIcon />
+                      </div>
+                    )}
+                    <input id="org-photo-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                  </label>
 
                   <div className="qd-header-info">
-                    {/* Name row */}
+                    {/* Name row with status controls */}
                     <div className="qd-header-name-row">
                       <h1 className="qd-org-name">{org.name}</h1>
                       <span className="qd-code-chip">
@@ -233,6 +278,26 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
                         <span className="qd-status-dot" />
                         {org.status}
                       </span>
+                      {/* ── Pause / Close buttons ── */}
+                      <button
+                        className={`qd-action-btn qd-ctrl-btn ${org.status === 'ACTIVE' ? 'qd-action-btn--skip' : 'qd-action-btn--next'}`}
+                        onClick={handlePauseToggle}
+                        disabled={org.status === 'INACTIVE'}
+                        title={org.status === 'ACTIVE' ? 'Pause queue' : 'Resume queue'}
+                        style={{ marginLeft: 8 }}
+                      >
+                        {org.status === 'ACTIVE' ? <PauseIcon /> : <PlayIcon />}
+                        {org.status === 'ACTIVE' ? 'Pause' : 'Resume'}
+                      </button>
+                      <button
+                        className="qd-action-btn qd-ctrl-btn qd-action-btn--danger"
+                        onClick={handleCloseQueue}
+                        disabled={org.status === 'INACTIVE'}
+                        title="Close queue"
+                        style={{ marginLeft: 6 }}
+                      >
+                        <CloseIcon /> Close
+                      </button>
                     </div>
 
                     {/* Meta pills */}
@@ -550,6 +615,27 @@ function SkipIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="5 4 15 12 5 20 5 4" /><line x1="19" y1="5" x2="19" y2="19" />
+    </svg>
+  );
+}
+function PauseIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" />
+    </svg>
+  );
+}
+function PlayIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </svg>
+  );
+}
+function CloseIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   );
 }

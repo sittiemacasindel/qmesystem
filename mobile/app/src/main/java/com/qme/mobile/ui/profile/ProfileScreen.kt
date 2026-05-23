@@ -1,5 +1,5 @@
 package com.qme.mobile.ui.profile
-
+ 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,50 +43,47 @@ import com.qme.mobile.ui.components.QmeErrorBanner
 import com.qme.mobile.ui.components.QmeLoader
 import com.qme.mobile.ui.components.QmePrimaryButton
 import com.qme.mobile.ui.components.QmeSpacer
+import com.qme.mobile.ui.components.QmeSuccessBanner
 import com.qme.mobile.ui.components.QmeTextField
 import com.qme.mobile.ui.components.QmeTopBar
 import com.qme.mobile.ui.theme.QmeBlue
 import com.qme.mobile.ui.theme.QmeDarkBlue
-import com.qme.mobile.ui.theme.QmeOnSurface
+import com.qme.mobile.ui.theme.QmeError
 import com.qme.mobile.ui.theme.QmeSky
 import com.qme.mobile.ui.theme.QmeSubtext
-import com.qme.mobile.ui.theme.QmeSuccess
-import com.qme.mobile.ui.theme.QmeSuccessBg
 import com.qme.mobile.ui.theme.QmeWhite
-
+ 
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     onLogout: () -> Unit
 ) {
-    var profile     by remember { mutableStateOf<UserProfileResponse?>(null) }
-    var loading     by remember { mutableStateOf(true) }
-
+    var profile    by remember { mutableStateOf<UserProfileResponse?>(null) }
+    var loading    by remember { mutableStateOf(true) }
+ 
     // Edit profile state
-    var name        by remember { mutableStateOf("") }
-    var org         by remember { mutableStateOf("") }
-    var saving      by remember { mutableStateOf(false) }
-    var profileMsg  by remember { mutableStateOf<Pair<Boolean, String>?>(null) }
-
+    var name       by remember { mutableStateOf("") }
+    var saving     by remember { mutableStateOf(false) }
+    var profileMsg by remember { mutableStateOf<Pair<Boolean, String>?>(null) }
+ 
     // Change password state
-    var currentPwd  by remember { mutableStateOf("") }
-    var newPwd      by remember { mutableStateOf("") }
-    var confirmPwd  by remember { mutableStateOf("") }
-    var showCurr    by remember { mutableStateOf(false) }
-    var showNew     by remember { mutableStateOf(false) }
-    var showConf    by remember { mutableStateOf(false) }
-    var pwdSaving   by remember { mutableStateOf(false) }
-    var pwdMsg      by remember { mutableStateOf<Pair<Boolean, String>?>(null) }
-
+    var currentPwd by remember { mutableStateOf("") }
+    var newPwd     by remember { mutableStateOf("") }
+    var confirmPwd by remember { mutableStateOf("") }
+    var showCurr   by remember { mutableStateOf(false) }
+    var showNew    by remember { mutableStateOf(false) }
+    var showConf   by remember { mutableStateOf(false) }
+    var pwdSaving  by remember { mutableStateOf(false) }
+    var pwdMsg     by remember { mutableStateOf<Pair<Boolean, String>?>(null) }
+ 
     LaunchedEffect(Unit) {
         viewModel.loadProfile { p, _ ->
             profile = p
             name    = p?.name ?: ""
-            org     = p?.organization ?: ""
             loading = false
         }
     }
-
+ 
     Scaffold(topBar = { QmeTopBar() }) { innerPadding ->
         Column(
             modifier = Modifier
@@ -94,45 +93,58 @@ fun ProfileScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             QmeSpacer(20)
-
+ 
             if (loading) {
                 QmeLoader()
             } else {
                 // ── Avatar initials ──
-                val initials = name.split(" ").mapNotNull { it.firstOrNull()?.toString() }
-                    .take(2).joinToString("").uppercase().ifEmpty { "U" }
-
+                val initials = name
+                    .split(" ")
+                    .mapNotNull { it.firstOrNull()?.toString() }
+                    .take(2)
+                    .joinToString("")
+                    .uppercase()
+                    .ifEmpty { "U" }
+ 
                 Column(
                     modifier            = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
-                        modifier = Modifier
-                            .size(72.dp)
+                        modifier         = Modifier
+                            .size(80.dp)
                             .background(QmeBlue, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(initials, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = QmeWhite)
+                        Text(initials, fontSize = 30.sp, fontWeight = FontWeight.Bold, color = QmeWhite)
                     }
                     QmeSpacer(10)
-                    Text(profile?.name ?: "", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = QmeDarkBlue)
-                    Text(profile?.email ?: "", fontSize = 13.sp, color = QmeSubtext)
-                    Text(profile?.role ?: "CUSTOMER", fontSize = 11.sp, color = QmeBlue, fontWeight = FontWeight.Medium)
+                    Text(
+                        profile?.name ?: "",
+                        fontWeight = FontWeight.Bold,
+                        fontSize   = 20.sp,
+                        color      = QmeDarkBlue
+                    )
+                    Text(
+                        profile?.email ?: "",
+                        fontSize = 13.sp,
+                        color    = QmeSubtext
+                    )
                 }
-
+ 
                 QmeSpacer(24)
                 HorizontalDivider(color = QmeSky)
                 QmeSpacer(20)
-
+ 
                 // ── Edit Profile ──
                 Text("Edit Profile", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = QmeDarkBlue)
                 QmeSpacer(12)
-
-                profileMsg?.let { (success, msg) ->
-                    if (success) SuccessBanner(msg) else QmeErrorBanner(msg)
+ 
+                profileMsg?.let { (ok, msg) ->
+                    if (ok) QmeSuccessBanner(msg) else QmeErrorBanner(msg)
                     QmeSpacer(8)
                 }
-
+ 
                 QmeTextField(
                     value         = name,
                     onValueChange = { name = it; profileMsg = null },
@@ -140,40 +152,35 @@ fun ProfileScreen(
                     leadingIcon   = { Icon(Icons.Default.Person, null, tint = QmeBlue) },
                     enabled       = !saving
                 )
-                QmeSpacer(10)
-                QmeTextField(
-                    value         = org,
-                    onValueChange = { org = it; profileMsg = null },
-                    label         = "Organization (optional)",
-                    enabled       = !saving
-                )
+ 
                 QmeSpacer(14)
+ 
                 QmePrimaryButton(
                     text    = "Save Changes",
                     onClick = {
                         saving = true
                         profileMsg = null
-                        viewModel.updateProfile(name, org.ifBlank { null }) { ok, msg ->
-                            saving = false
+                        viewModel.updateProfile(name, null) { ok, msg ->
+                            saving     = false
                             profileMsg = ok to (msg ?: if (ok) "Profile updated!" else "Unknown error")
                         }
                     },
                     loading = saving
                 )
-
+ 
                 QmeSpacer(28)
                 HorizontalDivider(color = QmeSky)
                 QmeSpacer(20)
-
+ 
                 // ── Change Password ──
                 Text("Change Password", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = QmeDarkBlue)
                 QmeSpacer(12)
-
-                pwdMsg?.let { (success, msg) ->
-                    if (success) SuccessBanner(msg) else QmeErrorBanner(msg)
+ 
+                pwdMsg?.let { (ok, msg) ->
+                    if (ok) QmeSuccessBanner(msg) else QmeErrorBanner(msg)
                     QmeSpacer(8)
                 }
-
+ 
                 QmeTextField(
                     value               = currentPwd,
                     onValueChange       = { currentPwd = it; pwdMsg = null },
@@ -223,7 +230,7 @@ fun ProfileScreen(
                     text    = "Change Password",
                     onClick = {
                         pwdSaving = true
-                        pwdMsg = null
+                        pwdMsg    = null
                         viewModel.changePassword(currentPwd, newPwd, confirmPwd) { ok, msg ->
                             pwdSaving = false
                             pwdMsg    = ok to (msg ?: if (ok) "Password changed!" else "Unknown error")
@@ -232,31 +239,23 @@ fun ProfileScreen(
                     },
                     loading = pwdSaving
                 )
-
-                QmeSpacer(28)
+ 
+                QmeSpacer(10)
                 HorizontalDivider(color = QmeSky)
-                QmeSpacer(16)
-
+                QmeSpacer(10)
+ 
                 // ── Logout ──
-                QmePrimaryButton(
-                    text    = "Logout",
-                    onClick = onLogout
-                )
+                Button(
+                    onClick  = onLogout,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape    = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                    colors   = ButtonDefaults.buttonColors(containerColor = QmeError)
+                ) {
+                    Text("Logout", color = QmeWhite, fontWeight = FontWeight.SemiBold)
+                }
             }
-
+ 
             QmeSpacer(32)
         }
-    }
-}
-
-@Composable
-private fun SuccessBanner(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(QmeSuccessBg, androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
-            .padding(horizontal = 12.dp, vertical = 8.dp)
-    ) {
-        Text("✓ $message", color = QmeSuccess, fontSize = 13.sp, fontWeight = FontWeight.Medium)
     }
 }

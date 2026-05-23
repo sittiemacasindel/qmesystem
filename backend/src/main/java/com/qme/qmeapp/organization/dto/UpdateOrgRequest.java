@@ -11,4 +11,5 @@ public class UpdateOrgRequest {
     private Integer waitTimeMax;
     private String location;
     private String contactNumber;
+    private String photo; // base64 data URI
 }

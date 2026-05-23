@@ -12,5 +12,6 @@ data class OrganizationResponse(
     val location: String?,
     val contactNumber: String?,
     val totalWaitingCustomers: Int?,
-    val totalServedToday: Int?
+    val totalServedToday: Int?,
+    val photo: String?          // base64-encoded image (data URI), nullable for backward-compat
 )

@@ -42,7 +42,8 @@ public class QueueService {
             throw new BadRequestException("This queue is currently not active.");
         }
 
-        // Check if customer is already in an active queue for ANY organization (or just this one)
+        // Check if customer is already in an active queue for ANY organization (or just
+        // this one)
         // Rule: A customer can only be in one active queue at a time
         Optional<QueueEntry> existingEntry = queueEntryRepository.findByCustomerIdAndStatusIn(
                 customer.getId(), List.of("WAITING", "SERVING"));
@@ -51,11 +52,12 @@ public class QueueService {
         }
 
         Integer queueNumber = generateUniqueQueueNumber(org.getId());
-        
-        // Calculate initial position: max position + 1, or simply base it on how many are currently waiting/serving
+
+        // Calculate initial position: max position + 1, or simply base it on how many
+        // are currently waiting/serving
         List<QueueEntry> activeEntries = queueEntryRepository.findByOrganizationIdAndStatusInOrderByPositionAsc(
                 org.getId(), List.of("WAITING", "SERVING"));
-        
+
         int newPosition = 1;
         if (!activeEntries.isEmpty()) {
             newPosition = activeEntries.get(activeEntries.size() - 1).getPosition() + 1;
@@ -95,11 +97,13 @@ public class QueueService {
         Organization org = entry.getOrganization();
 
         long waitingCount = queueEntryRepository.countWaitingBeforePosition(org.getId(), entry.getPosition());
-        int positionInLine = "SERVING".equals(entry.getStatus()) ? 1 : (int) waitingCount + (hasServingEntry(org.getId()) ? 2 : 1);
+        int positionInLine = "SERVING".equals(entry.getStatus()) ? 1
+                : (int) waitingCount + (hasServingEntry(org.getId()) ? 2 : 1);
 
         String computedStatus = getComputedStatus(entry.getStatus(), positionInLine);
-        
-        Optional<QueueEntry> servingEntry = queueEntryRepository.findFirstByOrganizationIdAndStatusOrderByPositionAsc(org.getId(), "SERVING");
+
+        Optional<QueueEntry> servingEntry = queueEntryRepository
+                .findFirstByOrganizationIdAndStatusOrderByPositionAsc(org.getId(), "SERVING");
         Integer currentlyServingNumber = servingEntry.map(QueueEntry::getQueueNumber).orElse(null);
 
         // Average wait time estimate
@@ -149,7 +153,8 @@ public class QueueService {
 
         return entries.stream().map(entry -> {
             long waitingCount = queueEntryRepository.countWaitingBeforePosition(orgId, entry.getPosition());
-            int positionInLine = "SERVING".equals(entry.getStatus()) ? 1 : (int) waitingCount + (hasServingEntry(orgId) ? 2 : 1);
+            int positionInLine = "SERVING".equals(entry.getStatus()) ? 1
+                    : (int) waitingCount + (hasServingEntry(orgId) ? 2 : 1);
 
             return AdminQueueResponse.builder()
                     .entryId(entry.getId())
@@ -167,7 +172,8 @@ public class QueueService {
         verifyOrgAdmin(orgId, adminEmail);
 
         // 1. Mark current SERVING as SERVED
-        Optional<QueueEntry> servingEntry = queueEntryRepository.findFirstByOrganizationIdAndStatusOrderByPositionAsc(orgId, "SERVING");
+        Optional<QueueEntry> servingEntry = queueEntryRepository
+                .findFirstByOrganizationIdAndStatusOrderByPositionAsc(orgId, "SERVING");
         servingEntry.ifPresent(entry -> {
             entry.setStatus("SERVED");
             entry.setServedAt(OffsetDateTime.now());
@@ -175,7 +181,8 @@ public class QueueService {
         });
 
         // 2. Find next WAITING and mark as SERVING
-        Optional<QueueEntry> nextEntry = queueEntryRepository.findFirstByOrganizationIdAndStatusOrderByPositionAsc(orgId, "WAITING");
+        Optional<QueueEntry> nextEntry = queueEntryRepository
+                .findFirstByOrganizationIdAndStatusOrderByPositionAsc(orgId, "WAITING");
         nextEntry.ifPresent(entry -> {
             entry.setStatus("SERVING");
             queueEntryRepository.save(entry);
@@ -187,14 +194,16 @@ public class QueueService {
         verifyOrgAdmin(orgId, adminEmail);
 
         // 1. Mark current SERVING as SKIPPED
-        Optional<QueueEntry> servingEntry = queueEntryRepository.findFirstByOrganizationIdAndStatusOrderByPositionAsc(orgId, "SERVING");
+        Optional<QueueEntry> servingEntry = queueEntryRepository
+                .findFirstByOrganizationIdAndStatusOrderByPositionAsc(orgId, "SERVING");
         servingEntry.ifPresent(entry -> {
             entry.setStatus("SKIPPED");
             queueEntryRepository.save(entry);
         });
 
         // 2. Find next WAITING and mark as SERVING
-        Optional<QueueEntry> nextEntry = queueEntryRepository.findFirstByOrganizationIdAndStatusOrderByPositionAsc(orgId, "WAITING");
+        Optional<QueueEntry> nextEntry = queueEntryRepository
+                .findFirstByOrganizationIdAndStatusOrderByPositionAsc(orgId, "WAITING");
         nextEntry.ifPresent(entry -> {
             entry.setStatus("SERVING");
             queueEntryRepository.save(entry);
@@ -242,9 +251,12 @@ public class QueueService {
     }
 
     private String getComputedStatus(String actualStatus, int positionInLine) {
-        if ("SERVING".equals(actualStatus)) return "BEING_SERVED";
-        if (positionInLine == 1) return "BEING_SERVED"; // Fallback if no one is explicitly serving yet but they are 1st
-        if (positionInLine == 2) return "NEXT_IN_LINE";
+        if ("SERVING".equals(actualStatus))
+            return "BEING_SERVED";
+        if (positionInLine == 1)
+            return "BEING_SERVED"; // Fallback if no one is explicitly serving yet but they are 1st
+        if (positionInLine == 2)
+            return "NEXT_IN_LINE";
         return "WAITING";
     }
 
@@ -260,6 +272,7 @@ public class QueueService {
                 .location(org.getLocation())
                 .contactNumber(org.getContactNumber())
                 .status(org.getStatus())
+                .photo(org.getPhoto())
                 .build();
     }
 }

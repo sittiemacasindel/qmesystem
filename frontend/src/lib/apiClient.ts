@@ -152,10 +152,11 @@ export interface OrganizationPayload {
   waitTimeMax: number;
   location: string;
   contactNumber: string;
-  status: 'ACTIVE' | 'PAUSED';
+  status: 'ACTIVE' | 'PAUSED' | 'INACTIVE';
   createdAt: string;
   totalWaitingCustomers?: number;
   totalServedToday?: number;
+  photo?: string;
 }
 
 export interface CreateOrgBody {
