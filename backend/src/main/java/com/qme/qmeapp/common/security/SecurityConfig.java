@@ -46,21 +46,16 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/organizations/code/**").permitAll()
-                        // Admin only
                         .requestMatchers("/api/organizations/**").hasRole("ADMIN")
                         .requestMatchers("/api/analytics/**").hasRole("ADMIN")
-                        // Customer only
                         .requestMatchers("/api/queues/join/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/queues/my").hasRole("CUSTOMER")
                         .requestMatchers(HttpMethod.DELETE, "/api/queues/*/cancel").hasRole("CUSTOMER")
                         .requestMatchers("/api/history/**").hasRole("CUSTOMER")
-                        // Admin queue management
                         .requestMatchers("/api/queues/organization/**").hasRole("ADMIN")
                         .requestMatchers("/api/queues/entries/**").hasRole("ADMIN")
-                        // Profile
                         .requestMatchers("/api/users/me").authenticated()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
@@ -83,8 +78,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Replace the placeholder URL below with your actual Vercel URL!
-        // You can keep localhost in there for your local testing.
         configuration.setAllowedOrigins(List.of(
                 "https://qme-frontend-git-main-siitie-s-projects.vercel.app",
                 "http://localhost:3000",

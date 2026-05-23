@@ -18,7 +18,6 @@ class JoinQueueViewModel(private val repo: QueueRepository) : ViewModel() {
 
     fun confirmJoin(queueCode: String, onResult: (JoinQueueResponse?, String?) -> Unit) {
         repo.joinQueue(queueCode) { result, err ->
-            // Remap the "already in queue" error to the required message
             val mappedError = if (err?.contains("already") == true || err?.contains("not accepting") == true) {
                 "You are only allowed to join up to 1 queue."
             } else {

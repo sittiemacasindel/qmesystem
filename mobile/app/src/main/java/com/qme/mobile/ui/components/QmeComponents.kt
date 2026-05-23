@@ -56,7 +56,6 @@ import com.qme.mobile.ui.theme.QmeSuccess
 import com.qme.mobile.ui.theme.QmeSuccessBg
 import com.qme.mobile.ui.theme.QmeWhite
 
-// ── Avatar color palette (deterministic by org name) ──────────────────────────
 private val avatarPalette = listOf(
     Color(0xFF1E88E5), Color(0xFF00ACC1), Color(0xFF43A047),
     Color(0xFF7B1FA2), Color(0xFFF4511E), Color(0xFF00897B),
@@ -69,10 +68,8 @@ private fun orgColor(name: String): Color {
     return avatarPalette[idx]
 }
 
-/** Circle avatar for an org — shows the actual photo if available, otherwise first letter */
 @Composable
 fun OrgAvatar(orgName: String, photoBase64: String? = null, size: Dp = 56.dp) {
-    // Decode base64 → ImageBitmap (strip data-URI prefix if present)
     val imageBitmap = remember(photoBase64) {
         if (photoBase64.isNullOrBlank()) null
         else runCatching {
@@ -113,9 +110,6 @@ fun OrgAvatar(orgName: String, photoBase64: String? = null, size: Dp = 56.dp) {
     }
 }
 
-/** Centered QMe brand logo shown on auth / splash screens.
- *  Renders qme_logo.png with its white background made transparent
- *  by replacing near-white pixels with fully transparent ones. */
 @Composable
 fun QmeLogo(modifier: Modifier = Modifier, large: Boolean = false) {
     val context = LocalContext.current
@@ -153,7 +147,6 @@ fun QmeLogo(modifier: Modifier = Modifier, large: Boolean = false) {
 }
 
 
-/** Top app bar with "QMe" brand logo centered */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QmeTopBar(
@@ -232,7 +225,6 @@ fun QmeTopBar(
 
 }
 
-/** Standard labeled text field */
 @Composable
 fun QmeTextField(
     value: String,
@@ -266,7 +258,6 @@ fun QmeTextField(
     )
 }
 
-/** Full-width primary action button with optional loading state */
 @Composable
 fun QmePrimaryButton(
     text: String,
@@ -305,7 +296,6 @@ fun QmePrimaryButton(
     }
 }
 
-/** Inline error message banner */
 @Composable
 fun QmeErrorBanner(message: String, modifier: Modifier = Modifier) {
     Row(
@@ -325,7 +315,6 @@ fun QmeErrorBanner(message: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** Success banner */
 @Composable
 fun QmeSuccessBanner(message: String, modifier: Modifier = Modifier) {
     Box(
@@ -338,7 +327,6 @@ fun QmeSuccessBanner(message: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** Centered loading spinner */
 @Composable
 fun QmeLoader(modifier: Modifier = Modifier) {
     Box(modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -346,7 +334,6 @@ fun QmeLoader(modifier: Modifier = Modifier) {
     }
 }
 
-/** Info card with light-blue background */
 @Composable
 fun QmeInfoCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Box(
@@ -359,7 +346,6 @@ fun QmeInfoCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) 
     }
 }
 
-/** Bordered card */
 @Composable
 fun QmeBorderedCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Box(
@@ -373,7 +359,6 @@ fun QmeBorderedCard(modifier: Modifier = Modifier, content: @Composable () -> Un
     }
 }
 
-/** Status badge for ACTIVE / PAUSED / OPEN queue */
 @Composable
 fun StatusBadge(status: String, bold: Boolean = false) {
     val (bg, fg) = when (status.uppercase()) {
@@ -397,6 +382,5 @@ fun StatusBadge(status: String, bold: Boolean = false) {
     }
 }
 
-/** Section spacer */
 @Composable
 fun QmeSpacer(height: Int = 16) = Spacer(Modifier.height(height.dp))

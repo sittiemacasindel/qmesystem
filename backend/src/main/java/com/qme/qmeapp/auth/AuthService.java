@@ -26,8 +26,6 @@ public class AuthService {
     private final CustomUserDetailsService userDetailsService;
 
     public AuthResponse register(RegisterRequest request) {
-        // Block only if an ADMIN account already exists with this email.
-        // A CUSTOMER may share the same email — they get a separate ADMIN account.
         if (userRepository.existsByEmailAndRole(request.getEmail(), "ADMIN")) {
             throw new BadRequestException("An admin account with this email already exists.");
         }

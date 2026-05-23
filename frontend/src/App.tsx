@@ -8,7 +8,6 @@ import QueueDetail from "./pages/QueueDetail";
 
 type Page = "login" | "register" | "home" | "profile" | "queue-detail";
 
-// Determine starting page
 const initialPage: Page = session.isLoggedIn() ? "home" : "login";
 
 function App() {
@@ -39,7 +38,6 @@ function App() {
 
   return (
     <>
-      {/* ── Logout Confirmation Modal ── */}
       {confirmLogout && (
         <div className="modal-overlay" onClick={() => setConfirmLogout(false)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
@@ -94,7 +92,6 @@ function App() {
         </div>
       )}
 
-      {/* ── Pages ── */}
       {page === "home" && (
         <Home
           onNavigateToProfile={() => setPageSafe("profile")}

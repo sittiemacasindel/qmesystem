@@ -51,25 +51,20 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
   });
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
 
-  // ── Create Queue Modal ──
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<CreateQueueForm>(EMPTY_FORM);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
-  // Photo upload state (for the new queue photo)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
-  // ── Delete confirm ──
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  // ── Load all data ──
   useEffect(() => {
     loadData();
 
-    // Listen for avatar changes from Profile page
     const onStorage = (e: StorageEvent) => {
       if (e.key === AVATAR_STORAGE_KEY) setAvatarDataUrl(e.newValue);
     };
@@ -81,7 +76,6 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
   const loadData = async () => {
     setLoadingProfile(true);
 
-    // Run profile, org list, analytics in parallel
     const [pRes, oRes, aRes] = await Promise.all([
       profileApi.get(),
       organizationApi.list(),
@@ -114,7 +108,6 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
 
   const displayName = loadingProfile ? "…" : (profile?.fullName || "Admin");
 
-  // ── Toggle status ──
   const handleToggleStatus = async (org: OrganizationPayload) => {
     if (togglingId) return;
     setTogglingId(org.id);
@@ -124,14 +117,12 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
       setOrganizations((prev) =>
         prev.map((o) => (o.id === org.id ? result.data! : o))
       );
-      // Refresh analytics
       const aRes = await analyticsApi.get();
       if (aRes.data) setAnalytics(aRes.data);
     }
     setTogglingId(null);
   };
 
-  // ── Delete ──
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     await organizationApi.delete(id);
@@ -143,7 +134,6 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
     setConfirmDeleteId(null);
   };
 
-  // ── Modal ──
   const openModal = () => {
     setForm(EMPTY_FORM);
     setCreateError("");
@@ -199,7 +189,6 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
       if (res.error) {
         setCreateError(res.error);
       } else if (res.data) {
-        // Save photo for this org in localStorage
         if (photoPreview) {
           try { localStorage.setItem(ORG_PHOTO_KEY_PREFIX + res.data.id, photoPreview); } catch { /* quota */ }
         }
@@ -228,8 +217,7 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
         />
 
         <div className="right-panel">
-          {/* ── App Header ── */}
-          <header className="app-header">
+            <header className="app-header">
             <div className="app-header-brand">
               <img src="/Qme_Logo.png" alt="QMe" className="header-logo-img" />
               {profile?.organization && (
@@ -254,7 +242,6 @@ function Home({ onNavigateToProfile, onLogout, onViewOrg }: HomeProps) {
             </div>
           </header>
 
-          {/* ── Main Content ── */}
           <main className="dash-main">
             {/* Page Title Row */}
             <div className="dash-title-row">

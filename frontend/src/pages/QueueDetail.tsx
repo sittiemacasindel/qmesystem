@@ -33,7 +33,6 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
   const [orgPhoto, setOrgPhoto] = useState<string | null>(null);
 
-  // Action states
   const [callingNext, setCallingNext] = useState(false);
   const [skipping, setSkipping] = useState(false);
   const [servingId, setServingId] = useState<string | null>(null);
@@ -62,7 +61,6 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
   }, [orgId]);
 
   useEffect(() => {
-    // Profile
     profileApi.get().then((res) => {
       if (res.data) {
         setProfileName(res.data.fullName);
@@ -72,11 +70,9 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
     const saved = localStorage.getItem(AVATAR_STORAGE_KEY);
     if (saved) setAvatarDataUrl(saved);
 
-    // Org details
     organizationApi.get(orgId).then((res) => {
       if (res.data) {
         setOrg(res.data);
-        // Use backend photo if localStorage doesn't have one
         const stored = localStorage.getItem(ORG_PHOTO_KEY_PREFIX + orgId);
         if (stored) {
           setOrgPhoto(stored);
@@ -87,10 +83,8 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
       setLoadingOrg(false);
     });
 
-    // Queue entries
     fetchEntries();
 
-    // Poll for updates every 10 seconds
     pollTimerRef.current = setInterval(async () => {
       await fetchEntries();
       await fetchOrg();
@@ -103,7 +97,6 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgId]);
 
-  // ── Queue Actions ──
   const handleCallNext = async () => {
     setCallingNext(true);
     const res = await queueApi.callNext(orgId);
@@ -174,13 +167,11 @@ function QueueDetail({ orgId, onBack, onNavigateToProfile, onLogout }: QueueDeta
       const base64 = reader.result as string;
       setOrgPhoto(base64);
       localStorage.setItem(ORG_PHOTO_KEY_PREFIX + orgId, base64);
-      // Sync to backend so mobile can see it
       await organizationApi.update(orgId, { photo: base64 } as any);
     };
     reader.readAsDataURL(file);
   };
 
-  // ── Derived data ──
   const servingEntry = entries.find((e) => e.status === "SERVING") ?? null;
   const waitingEntries = entries.filter((e) => e.status === "WAITING");
 

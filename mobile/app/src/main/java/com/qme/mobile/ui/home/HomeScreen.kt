@@ -90,7 +90,6 @@ fun HomeScreen(
                     onClick = { onViewQueueDetail(queueDetails!!.entryId) }
                 )
             } else {
-                // Empty state
                 QmeInfoCard {
                     Column(
                         modifier              = Modifier.fillMaxWidth().padding(vertical = 28.dp),
@@ -146,7 +145,6 @@ private fun ActiveQueueCard(details: QueueDetailsResponse, onClick: () -> Unit) 
             .padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Org avatar + name row
         Row(
             verticalAlignment     = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -158,7 +156,6 @@ private fun ActiveQueueCard(details: QueueDetailsResponse, onClick: () -> Unit) 
             }
         }
         HorizontalDivider(color = accent.copy(alpha = 0.2f))
-        // Stats row
         Row(
             modifier              = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround

@@ -106,10 +106,8 @@ private fun HistoryCard(entry: HistoryEntryResponse) {
         verticalAlignment     = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Org avatar
         OrgAvatar(orgName = entry.organizationName, size = 48.dp)
  
-        // Content
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
                 modifier              = Modifier.fillMaxWidth(),
@@ -123,7 +121,6 @@ private fun HistoryCard(entry: HistoryEntryResponse) {
                     color      = QmeOnSurface,
                     modifier   = Modifier.weight(1f)
                 )
-                // Status badge
                 Text(
                     text       = entry.status,
                     fontSize   = 10.sp,

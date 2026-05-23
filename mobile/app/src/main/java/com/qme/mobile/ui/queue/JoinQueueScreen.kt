@@ -63,7 +63,6 @@ fun JoinQueueScreen(
             Text("Join a Queue", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = QmeDarkBlue)
             QmeSpacer(16)
 
-            // ── Code entry card ──
             QmeInfoCard {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
@@ -112,7 +111,6 @@ fun JoinQueueScreen(
             Text("1. Ask the service provider", fontSize = 13.sp, color = QmeSubtext)
             Text("2. Check their website or display board", fontSize = 13.sp, color = QmeSubtext)
 
-            // ── Recent Queues ──
             if (recentQueues.isNotEmpty()) {
                 QmeSpacer(24)
                 Row(
@@ -142,7 +140,6 @@ fun JoinQueueScreen(
         }
     }
 
-    // ── Queue Preview Modal (Dialog) ──
     if (foundOrg != null) {
         Dialog(
             onDismissRequest = { foundOrg = null },
@@ -178,7 +175,6 @@ fun JoinQueueScreen(
         }
     }
 
-    // ── Queue Not Found dialog ──
     if (showNotFound) {
         AlertDialog(
             onDismissRequest = { showNotFound = false },
@@ -209,10 +205,8 @@ private fun QueuePreviewContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Avatar — real photo if available
         OrgAvatar(orgName = org.name, photoBase64 = org.photo, size = 80.dp)
 
-        // Status
         Text(
             text          = if (isPaused) "PAUSED" else "OPEN",
             color         = statusColor,
@@ -221,7 +215,6 @@ private fun QueuePreviewContent(
             letterSpacing = 1.sp
         )
 
-        // Name
         Text(
             text       = org.name,
             fontSize   = 18.sp,

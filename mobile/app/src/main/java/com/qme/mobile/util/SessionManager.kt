@@ -3,10 +3,6 @@ package com.qme.mobile.util
 import android.content.Context
 import android.content.SharedPreferences
 
-/**
- * Manages the authenticated user session using SharedPreferences.
- * Acts as the single source of truth for auth state across the app.
- */
 class SessionManager(context: Context) {
 
     private val prefs: SharedPreferences =

@@ -76,7 +76,6 @@ public class OrganizationService {
 
         OrganizationResponse response = mapToResponse(org);
 
-        // Populate stats
         long waitingCount = queueEntryRepository.countByOrganizationIdAndStatus(id, "WAITING");
         long servingCount = queueEntryRepository.countByOrganizationIdAndStatus(id, "SERVING");
         response.setTotalWaitingCustomers(waitingCount + servingCount);

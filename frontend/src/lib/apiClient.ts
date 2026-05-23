@@ -1,14 +1,5 @@
-/**
- * apiClient.ts
- * Centralised HTTP client for the QMe Spring Boot backend.
- * Base URL: http://localhost:8080
- */
-
-// If Vercel has REACT_APP_API_URL set, use it. Otherwise, use localhost.
-// Make sure you add REACT_APP_API_URL to your Vercel Environment Variables!
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
-/** Generic fetch wrapper that handles auth header and JSON parsing. */
 async function request<T>(
   path: string,
   options: RequestInit = {}
@@ -33,8 +24,6 @@ async function request<T>(
   }
 }
 
-/* ── Auth ── */
-
 export interface AuthPayload {
   token: string;
   email: string;
@@ -45,11 +34,6 @@ export interface AuthPayload {
 }
 
 export const authApi = {
-  /**
-   * Backend expects: { name, email, password, role }
-   * Frontend collects: { fullName, email, password }
-   * We map fullName → name and hard-code role = 'ADMIN'.
-   */
   register: (body: {
     fullName: string;
     email: string;
@@ -74,21 +58,17 @@ export const authApi = {
     }),
 };
 
-/* ── Profile ── */
-
 export interface ProfilePayload {
   id: string;
   email: string;
   fullName: string;
   role: string;
   organization: string;
-  // kept optional for UI compatibility
   username?: string;
   avatarUrl?: string | null;
 }
 
 export const profileApi = {
-  /** GET /api/users/me → maps backend `name` → `fullName` */
   get: async () => {
     const res = await request<{ id: string; name: string; email: string; role: string; organization?: string }>(
       '/api/users/me'
@@ -106,7 +86,6 @@ export const profileApi = {
     };
   },
 
-  /** PUT /api/users/me — backend accepts `{ name, organization }` */
   update: async (body: { fullName: string; organization?: string }) => {
     const res = await request<{ id: string; name: string; email: string; role: string; organization?: string }>(
       '/api/users/me',
@@ -128,19 +107,16 @@ export const profileApi = {
     };
   },
 
-  /** PUT /api/users/me/password — verifies currentPassword on the backend */
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     request<void>('/api/users/me/password', {
       method: 'PUT',
       body: JSON.stringify(body),
     }),
 
-  // Avatar upload is handled via localStorage base64
   updateAvatar: (_avatarUrl: string | null) =>
     Promise.resolve({ error: 'Avatar upload is handled via localStorage directly.' }),
 };
 
-/* ── Organizations (displayed as "Queues" in the UI) ── */
 
 export interface OrganizationPayload {
   id: string;
@@ -170,39 +146,32 @@ export interface CreateOrgBody {
 }
 
 export const organizationApi = {
-  /** GET /api/organizations — list all organizations owned by the logged-in admin */
   list: () => request<OrganizationPayload[]>('/api/organizations'),
 
-  /** GET /api/organizations/:id — get full details including queue stats */
   get: (id: string) => request<OrganizationPayload>(`/api/organizations/${id}`),
 
-  /** POST /api/organizations — create a new organization (queue code is auto-generated) */
   create: (body: CreateOrgBody) =>
     request<OrganizationPayload>('/api/organizations', {
       method: 'POST',
       body: JSON.stringify(body),
     }),
 
-  /** PUT /api/organizations/:id — update organization details */
   update: (id: string, body: Partial<CreateOrgBody>) =>
     request<OrganizationPayload>(`/api/organizations/${id}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     }),
 
-  /** PUT /api/organizations/:id/status — toggle ACTIVE ↔ PAUSED */
   updateStatus: (id: string, status: 'ACTIVE' | 'PAUSED') =>
     request<OrganizationPayload>(`/api/organizations/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
     }),
 
-  /** DELETE /api/organizations/:id */
   delete: (id: string) =>
     request<void>(`/api/organizations/${id}`, { method: 'DELETE' }),
 };
 
-/* ── Analytics ── */
 
 export interface AnalyticsPayload {
   activeOrganizations: number;
@@ -211,11 +180,8 @@ export interface AnalyticsPayload {
 }
 
 export const analyticsApi = {
-  /** GET /api/analytics */
   get: () => request<AnalyticsPayload>('/api/analytics'),
 };
-
-/* ── Queue Entries (Admin Operations) ── */
 
 export interface AdminQueueEntry {
   entryId: string;
@@ -227,26 +193,19 @@ export interface AdminQueueEntry {
 }
 
 export const queueApi = {
-  /** GET /api/queues/organization/:orgId — get all active queue entries for an org */
   getEntries: (orgId: string) =>
     request<AdminQueueEntry[]>(`/api/queues/organization/${orgId}`),
 
-  /** POST /api/queues/organization/:orgId/call-next — mark serving→served, next waiting→serving */
   callNext: (orgId: string) =>
     request<void>(`/api/queues/organization/${orgId}/call-next`, { method: 'POST' }),
 
-  /** POST /api/queues/organization/:orgId/skip — skip the currently serving customer */
   skip: (orgId: string) =>
     request<void>(`/api/queues/organization/${orgId}/skip`, { method: 'POST' }),
 
-  /** POST /api/queues/entries/:entryId/serve — mark a specific entry as served */
   markAsServed: (entryId: string) =>
     request<void>(`/api/queues/entries/${entryId}/serve`, { method: 'POST' }),
 };
 
-/* ── Session helpers ── */
-
-/** Raw shape returned by the backend's auth endpoints */
 interface BackendAuthResponse {
   token: string;
   name: string;
@@ -256,7 +215,6 @@ interface BackendAuthResponse {
 }
 
 export const session = {
-  /** Maps backend field names to the UI's AuthPayload shape before persisting. */
   save: (payload: BackendAuthResponse | AuthPayload) => {
     localStorage.setItem('qme_token', payload.token);
     const normalised: AuthPayload = {

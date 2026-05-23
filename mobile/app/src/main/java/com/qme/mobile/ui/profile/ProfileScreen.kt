@@ -61,12 +61,10 @@ fun ProfileScreen(
     var profile    by remember { mutableStateOf<UserProfileResponse?>(null) }
     var loading    by remember { mutableStateOf(true) }
  
-    // Edit profile state
     var name       by remember { mutableStateOf("") }
     var saving     by remember { mutableStateOf(false) }
     var profileMsg by remember { mutableStateOf<Pair<Boolean, String>?>(null) }
  
-    // Change password state
     var currentPwd by remember { mutableStateOf("") }
     var newPwd     by remember { mutableStateOf("") }
     var confirmPwd by remember { mutableStateOf("") }
@@ -97,7 +95,6 @@ fun ProfileScreen(
             if (loading) {
                 QmeLoader()
             } else {
-                // ── Avatar initials ──
                 val initials = name
                     .split(" ")
                     .mapNotNull { it.firstOrNull()?.toString() }
@@ -136,7 +133,6 @@ fun ProfileScreen(
                 HorizontalDivider(color = QmeSky)
                 QmeSpacer(20)
  
-                // ── Edit Profile ──
                 Text("Edit Profile", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = QmeDarkBlue)
                 QmeSpacer(12)
  
@@ -172,7 +168,6 @@ fun ProfileScreen(
                 HorizontalDivider(color = QmeSky)
                 QmeSpacer(20)
  
-                // ── Change Password ──
                 Text("Change Password", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = QmeDarkBlue)
                 QmeSpacer(12)
  
@@ -244,7 +239,6 @@ fun ProfileScreen(
                 HorizontalDivider(color = QmeSky)
                 QmeSpacer(10)
  
-                // ── Logout ──
                 Button(
                     onClick  = onLogout,
                     modifier = Modifier.fillMaxWidth(),

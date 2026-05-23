@@ -80,18 +80,15 @@ fun QueueDetailScreen(
     var cancelConfirm   by remember { mutableStateOf(false) }
     var userCancelled   by remember { mutableStateOf(false) }
 
-    // Served state — captures last known info before queue disappears
     var servedSummary   by remember { mutableStateOf<ServiceSummary?>(null) }
     var showYourTurn    by remember { mutableStateOf(false) }
     var prevPosition    by remember { mutableIntStateOf(-1) }
 
-    // ── Polling loop ──
     LaunchedEffect(Unit) {
         while (true) {
             viewModel.loadDetails { d, err ->
                 if (!userCancelled) {
                     if (d != null) {
-                        // Detect position → 1 transition for "Your Turn" popup
                         if (prevPosition > 1 && d.positionInLine == 1) {
                             showYourTurn = true
                         }
@@ -99,9 +96,7 @@ fun QueueDetailScreen(
                         details      = d
                         errorMsg     = null
                     } else {
-                        // null with no error = served externally
                         if (err == null && details != null) {
-                            // Capture service summary before clearing
                             val prev = details!!
                             servedSummary = ServiceSummary(
                                 orgName     = prev.organization.name,
@@ -121,7 +116,6 @@ fun QueueDetailScreen(
         }
     }
 
-    // ── "Your Turn" popup ──
     if (showYourTurn) {
         AlertDialog(
             onDismissRequest = { showYourTurn = false },
@@ -151,7 +145,6 @@ fun QueueDetailScreen(
         )
     }
 
-    // ── Cancel confirmation dialog ──
     if (cancelConfirm && details != null) {
         AlertDialog(
             onDismissRequest = { cancelConfirm = false },
@@ -200,24 +193,20 @@ fun QueueDetailScreen(
             when {
                 loading       -> QmeLoader()
 
-                // ── Served / Thank You screen ──
                 servedSummary != null -> ServedScreen(
                     summary       = servedSummary!!,
                     onJoinAnother = onJoinAnother,
                     onDone        = onDone
                 )
 
-                // ── Error ──
                 errorMsg != null && details == null -> {
                     QmeErrorBanner(errorMsg!!)
                 }
 
-                // ── Active queue ──
                 details != null -> {
                     val d   = details!!
                     val org = d.organization
 
-                    // Org avatar
                     Column(
                         modifier            = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -227,7 +216,6 @@ fun QueueDetailScreen(
 
                     QmeSpacer(16)
 
-                    // Org info border card
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -267,7 +255,6 @@ fun QueueDetailScreen(
 
                     QmeSpacer(16)
 
-                    // Position card
                     val isBeingServed = d.computedStatus == "BEING_SERVED"
                     val isNext        = d.positionInLine == 1
                     val statusLabel   = when {
@@ -400,7 +387,6 @@ private fun ServedScreen(
 
         QmeSpacer(8)
 
-        // Summary card
         Column(
             modifier = Modifier
                 .fillMaxWidth()

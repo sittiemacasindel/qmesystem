@@ -20,15 +20,10 @@ public class HistoryService {
     private final QueueEntryRepository queueEntryRepository;
     private final UserRepository userRepository;
 
-    /**
-     * Returns the queue history for the authenticated customer.
-     * Only returns entries that are no longer active: SERVED, CANCELLED, or SKIPPED.
-     */
     public List<HistoryEntryResponse> getMyHistory(String customerEmail) {
         User customer = userRepository.findByEmail(customerEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found."));
 
-        // Exclude only truly active statuses; everything else is history
         List<QueueEntry> historyEntries = queueEntryRepository
                 .findByCustomerIdAndStatusNotInOrderByJoinedAtDesc(
                         customer.getId(),
@@ -41,7 +36,6 @@ public class HistoryService {
     }
 
     private HistoryEntryResponse mapToResponse(QueueEntry entry) {
-        // Determine the completed timestamp: served > cancelled > null
         OffsetDateTime completedAt = entry.getServedAt() != null
                 ? entry.getServedAt()
                 : entry.getCancelledAt();

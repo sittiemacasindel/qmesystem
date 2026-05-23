@@ -16,14 +16,12 @@ function ProfilePage({ onNavigateToDashboard, onLogout }: ProfilePageProps) {
   const [profile, setProfile] = useState<ProfilePayload | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("info");
 
-  // Edit profile fields
   const [editMode, setEditMode] = useState(false);
   const [fullName, setFullName] = useState("");
   const [organization, setOrganization] = useState("");
   const [saving, setSaving] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Password fields
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -33,13 +31,11 @@ function ProfilePage({ onNavigateToDashboard, onLogout }: ProfilePageProps) {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordMsg, setPasswordMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Photo
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoMsg, setPhotoMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  /* ── Fetch Profile ── */
   useEffect(() => {
     const fetchProfile = async () => {
       const res = await profileApi.get();
@@ -48,7 +44,6 @@ function ProfilePage({ onNavigateToDashboard, onLogout }: ProfilePageProps) {
         setFullName(res.data.fullName || "");
         setOrganization(res.data.organization || "");
       }
-      // Load saved avatar from localStorage
       const saved = localStorage.getItem(AVATAR_STORAGE_KEY);
       if (saved) setAvatarDataUrl(saved);
     };
@@ -60,7 +55,6 @@ function ProfilePage({ onNavigateToDashboard, onLogout }: ProfilePageProps) {
     return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "A";
   };
 
-  /* ── Save Profile ── */
   const handleSaveProfile = async () => {
     if (!profile) return;
     setProfileMsg(null);
@@ -87,7 +81,6 @@ function ProfilePage({ onNavigateToDashboard, onLogout }: ProfilePageProps) {
     }
   };
 
-  /* ── Change Password ── */
   const handleChangePassword = async () => {
     setPasswordMsg(null);
     if (!currentPassword || !newPassword || !confirmNewPassword) {
@@ -127,7 +120,6 @@ function ProfilePage({ onNavigateToDashboard, onLogout }: ProfilePageProps) {
     }
   };
 
-  /* ── Upload Photo (stored as base64 in localStorage) ── */
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -152,7 +144,6 @@ function ProfilePage({ onNavigateToDashboard, onLogout }: ProfilePageProps) {
         setAvatarDataUrl(dataUrl);
         setPhotoMsg({ type: "success", text: "Profile photo updated successfully!" });
       } catch {
-        // localStorage quota exceeded
         setPhotoMsg({ type: "error", text: "Image is too large to store. Please use a smaller image." });
       }
       setPhotoUploading(false);
@@ -163,7 +154,6 @@ function ProfilePage({ onNavigateToDashboard, onLogout }: ProfilePageProps) {
     };
     reader.readAsDataURL(file);
 
-    // Reset input so the same file can be re-selected
     e.target.value = "";
   };
 

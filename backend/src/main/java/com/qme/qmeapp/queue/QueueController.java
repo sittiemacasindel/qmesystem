@@ -19,8 +19,6 @@ public class QueueController {
 
     private final QueueService queueService;
 
-    // --- Customer Endpoints ---
-
     @PostMapping("/join/{queueCode}")
     public ResponseEntity<ApiResponse<JoinQueueResponse>> joinQueue(
             Authentication authentication,
@@ -42,8 +40,6 @@ public class QueueController {
         queueService.cancelMyQueue(entryId, authentication.getName());
         return ResponseEntity.ok(ApiResponse.success("Queue cancelled successfully", null));
     }
-
-    // --- Admin Endpoints ---
 
     @GetMapping("/organization/{orgId}")
     public ResponseEntity<ApiResponse<List<AdminQueueResponse>>> getOrganizationQueues(
